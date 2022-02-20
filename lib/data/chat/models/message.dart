@@ -1,5 +1,5 @@
-import 'package:surf_practice_chat_flutter/data/chat/models/geolocation.dart';
-import 'package:surf_practice_chat_flutter/data/chat/models/user.dart';
+import 'package:deos/data/chat/models/geolocation.dart';
+import 'package:deos/data/chat/models/user.dart';
 
 /// Data transfer object representing simple chat message.
 class ChatMessageDto {
@@ -19,8 +19,7 @@ class ChatMessageDto {
   });
 
   @override
-  String toString() =>
-      'ChatMessageDto(author: $author, message: $message, createdDate: $createdDateTime)';
+  String toString() => 'ChatMessageDto(author: $author, message: $message, createdDate: $createdDateTime)';
 }
 
 /// Data transfer object representing geolocation chat message.
@@ -36,6 +35,5 @@ class ChatMessageGeolocationDto extends ChatMessageDto {
   }) : super(author: author, message: message, createdDateTime: createdDate);
 
   @override
-  String toString() =>
-      'ChatMessageGeolocationDto(location: $location) extends ${super.toString()}';
+  String toString() => 'ChatMessageGeolocationDto(location: $location) extends ${super.toString()}';
 }
