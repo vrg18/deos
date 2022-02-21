@@ -1,5 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
-import 'package:deos/data/chat/cubit/message_cubit.dart';
+import 'package:deos/data/chat/cubit/get_messages_cubit.dart';
+import 'package:deos/data/chat/cubit/put_message_cubit.dart';
+import 'package:deos/data/chat/models/message.dart';
 import 'package:deos/data/providers/current_user.dart';
 import 'package:deos/data/providers/desktop.dart';
 import 'package:deos/screens/res/sizes.dart';
@@ -9,8 +11,6 @@ import 'package:deos/screens/widgets/message_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
-import '../data/chat/models/message.dart';
 
 /// Chat screen templete. This is your starting point.
 class ChatScreen extends StatefulWidget {
@@ -35,16 +35,16 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: CustomAppBar(
         isDesktop: context.read<Desktop>().isDesktop,
       ),
-      body: BlocConsumer<MessageCubit, MessageState>(
+      body: BlocConsumer<GetMessagesCubit, GetMessagesState>(
         listener: (context, state) {
-          if (state is MessageFirebaseError) {
+          if (state is GetMessagesFirebaseError) {
             _showFlushBar(context, state.errorMessage);
           }
         },
         builder: (context, state) {
-          if (state is MessagesLoading) {
+          if (state is GetMessagesLoading) {
             return const Center(child: CircularProgressIndicator());
-          } else if (state is MessagesLoaded) {
+          } else if (state is GetMessagesLoaded) {
             return _buildMessagesList(state);
           } else {
             return const SizedBox.shrink();
@@ -56,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessagesList(MessagesLoaded state) {
+  Widget _buildMessagesList(GetMessagesLoaded state) {
     return Padding(
       padding: const EdgeInsets.all(basicBorderSize),
       child: StaggeredGridView.countBuilder(
@@ -75,17 +75,33 @@ class _ChatScreenState extends State<ChatScreen> {
       controller: _textController,
       style: const TextStyle(color: Colors.black),
       textAlignVertical: TextAlignVertical.center,
+      cursorColor: Colors.black,
       decoration: InputDecoration(
-        fillColor: Colors.yellow,
         hintText: messageHint,
         hintStyle: const TextStyle(color: Colors.black45),
         contentPadding: const EdgeInsets.only(left: 10),
-        suffixIcon: IconButton(
-          icon: const Icon(
-            Icons.send,
-            color: Colors.black,
-          ),
-          onPressed: () => _sendMessage(context),
+        suffixIcon: BlocConsumer<PutMessageCubit, PutMessageState>(
+          listener: (context, state) {
+            if (state is PutMessageFirebaseError) {
+              _showFlushBar(context, state.errorMessage);
+            }
+          },
+          builder: (context, state) {
+            if (state is PutMessageSending) {
+              return const Padding(
+                padding: EdgeInsets.all(8),
+                child: CircularProgressIndicator(color: Colors.black),
+              );
+            } else {
+              return IconButton(
+                icon: const Icon(
+                  Icons.send,
+                  color: Colors.black,
+                ),
+                onPressed: () => _sendMessage(context),
+              );
+            }
+          },
         ),
       ),
       onSubmitted: (_) => _sendMessage(context),
@@ -95,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage(BuildContext context) {
     if (_textController.text.isNotEmpty) {
       FocusScope.of(context).unfocus();
-      context.read<MessageCubit>().sendMessage(
+      context.read<PutMessageCubit>().sendMessage(
             ChatMessageDto(
               author: context.read<CurrentUser>().getUser!,
               message: _textController.text,
