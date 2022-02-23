@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:deos/data/chat/cubit/get_messages_cubit.dart';
 import 'package:deos/data/chat/models/user.dart';
 import 'package:deos/data/providers/current_user.dart';
+import 'package:deos/screens/res/colors.dart';
 import 'package:deos/screens/res/sizes.dart';
 import 'package:deos/screens/res/strings.dart';
 import 'package:deos/screens/widgets/fake_status_bar.dart';
@@ -46,7 +49,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   @override
   Widget build(BuildContext context) {
-//    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarBrightness: Brightness.dark));
 
     return widget.isDesktop && widget.statusBarOnly
@@ -54,7 +56,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
         : Column(
             children: [
               if (widget.isDesktop) // Эмулируем StatusBar для Web
-                const FakeStatusBar(backgroundColor: Colors.black12, foregroundColor: Colors.black87),
+                FakeStatusBar(backgroundColor: mainColorTheme.shade600, foregroundColor: Colors.white),
               _buildAppBar(context),
             ],
           );
@@ -97,8 +99,16 @@ class _CustomAppBarState extends State<CustomAppBar> {
     return Center(
       child: CircleAvatar(
         radius: 16,
-//        backgroundColor: avatarBackgroundColor,
-        child: Text(currentUser.name.substring(0, 1).toUpperCase()),
+        backgroundColor:
+            Color((math.Random(currentUser.name.codeUnits.reduce((a, b) => a + b)).nextDouble() * 0xFFFFFF).toInt())
+                .withOpacity(1.0),
+        child: Text(
+          currentUser.name.substring(0, 1).toUpperCase(),
+          style: const TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }

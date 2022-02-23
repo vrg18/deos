@@ -6,6 +6,7 @@ import 'package:deos/data/providers/current_user.dart';
 import 'package:deos/data/providers/desktop.dart';
 import 'package:deos/firebase_options.dart';
 import 'package:deos/screens/chat.dart';
+import 'package:deos/screens/res/colors.dart';
 import 'package:deos/screens/shell/web_device_frame.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorSchemeSeed: Colors.deepPurple,
+          colorSchemeSeed: mainColorTheme,
           useMaterial3: true,
         ),
         home: Builder(

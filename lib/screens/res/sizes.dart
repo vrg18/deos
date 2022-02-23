@@ -4,7 +4,7 @@ import 'package:device_frame/device_frame.dart';
 
 final DeviceInfo deviceFrameCurrentPhone = Devices.android.samsungS8;
 
-const double basicBorderSize = 8; // основной отступ от краев экрана
+const double basicBorderSize = 8; // основной отступ
 const double widthWebWrapper = 400; // ширина WebWrapper (обертки для Web-экранов)
 const double halfPerimeterForDesktop = 1500; // ширина+высота больше которой считаем что запущено на десктопе
 const double heightOfStatusBar = 30; // высота полоски, иммитирующей StatusBar
