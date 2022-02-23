@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:deos/data/chat/cubit/get_messages_cubit.dart';
+import 'package:deos/data/chat/cubit/put_message_cubit.dart';
 import 'package:deos/data/chat/repository/firebase.dart';
 import 'package:deos/data/providers/current_user.dart';
+import 'package:deos/data/providers/desktop.dart';
 import 'package:deos/firebase_options.dart';
 import 'package:deos/screens/chat.dart';
 import 'package:deos/screens/shell/web_device_frame.dart';
@@ -9,9 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'data/chat/cubit/message_cubit.dart';
-import 'data/providers/desktop.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +41,8 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<Desktop>(create: (_) => Desktop()),
         ChangeNotifierProvider<CurrentUser>(create: (_) => CurrentUser(prefs)),
-        BlocProvider(create: (_) => MessageCubit(chatRepository)),
+        BlocProvider(create: (_) => GetMessagesCubit(chatRepository)),
+        BlocProvider(create: (_) => PutMessageCubit(chatRepository)),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

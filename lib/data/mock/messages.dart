@@ -1,5 +1,4 @@
 import 'package:deos/data/chat/chat.dart';
-import 'package:deos/data/chat/models/message.dart';
 
 /// Моковые данные
 

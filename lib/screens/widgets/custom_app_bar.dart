@@ -1,4 +1,4 @@
-import 'package:deos/data/chat/cubit/message_cubit.dart';
+import 'package:deos/data/chat/cubit/get_messages_cubit.dart';
 import 'package:deos/data/chat/models/user.dart';
 import 'package:deos/data/providers/current_user.dart';
 import 'package:deos/screens/res/sizes.dart';
@@ -69,7 +69,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh),
-          onPressed: () => context.read<MessageCubit>().getMessages(),
+          onPressed: () => context.read<GetMessagesCubit>().getMessages(),
         ),
       ],
     );
@@ -78,6 +78,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
   Widget _nicknameField(BuildContext context) {
     return TextField(
       controller: _controller,
+      cursorColor: Colors.white,
       style: const TextStyle(color: Colors.white),
       decoration: const InputDecoration(
         hintText: nicknameHint,
