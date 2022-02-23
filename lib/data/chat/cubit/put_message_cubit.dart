@@ -25,4 +25,8 @@ class PutMessageCubit extends Cubit<PutMessageState> {
       }
     }
   }
+
+  void putMessageInitial() {
+    emit(const PutMessageInitial());
+  }
 }

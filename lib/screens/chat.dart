@@ -35,35 +35,39 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: CustomAppBar(
         isDesktop: context.read<Desktop>().isDesktop,
       ),
-      body: BlocConsumer<GetMessagesCubit, GetMessagesState>(
-        listener: (context, state) {
-          if (state is GetMessagesFirebaseError) {
-            _showFlushBar(context, state.errorMessage);
-          }
-        },
-        builder: (context, state) {
-          if (state is GetMessagesLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is GetMessagesLoaded) {
-            return _buildMessagesList(state);
-          } else {
-            return const SizedBox.shrink();
-          }
-        },
+      body: Column(
+        children: [
+          Expanded(
+            child: BlocConsumer<GetMessagesCubit, GetMessagesState>(
+              listener: (context, state) {
+                if (state is GetMessagesFirebaseError) {
+                  _showFlushBar(context, state.errorMessage);
+                }
+              },
+              builder: (context, state) {
+                if (state is GetMessagesLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is GetMessagesLoaded) {
+                  return _buildMessagesList(state);
+                } else {
+                  return const SizedBox.expand();
+                }
+              },
+            ),
+          ),
+          if (context.watch<CurrentUser>().getUser != null) _sendMessageField(),
+        ],
       ),
-      floatingActionButton: context.watch<CurrentUser>().getUser != null ? _sendMessageField() : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget _buildMessagesList(GetMessagesLoaded state) {
     return Padding(
-      padding: const EdgeInsets.all(basicBorderSize),
+      padding: const EdgeInsets.only(top: basicBorderSize, left: basicBorderSize, right: basicBorderSize),
       child: StaggeredGridView.countBuilder(
         itemCount: state.messages.length,
-        crossAxisCount: state.messages.length,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        crossAxisCount: 1,
+        mainAxisSpacing: basicBorderSize,
         itemBuilder: (context, index) => MessageCard(state.messages[index]),
         staggeredTileBuilder: (_) => StaggeredTile.fit(state.messages.length),
       ),
@@ -71,40 +75,46 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _sendMessageField() {
-    return TextField(
-      controller: _textController,
-      style: const TextStyle(color: Colors.black),
-      textAlignVertical: TextAlignVertical.center,
-      cursorColor: Colors.black,
-      decoration: InputDecoration(
-        hintText: messageHint,
-        hintStyle: const TextStyle(color: Colors.black45),
-        contentPadding: const EdgeInsets.only(left: 10),
-        suffixIcon: BlocConsumer<PutMessageCubit, PutMessageState>(
-          listener: (context, state) {
-            if (state is PutMessageFirebaseError) {
-              _showFlushBar(context, state.errorMessage);
-            }
-          },
-          builder: (context, state) {
-            if (state is PutMessageSending) {
-              return const Padding(
-                padding: EdgeInsets.all(8),
-                child: CircularProgressIndicator(color: Colors.black),
-              );
-            } else {
-              return IconButton(
-                icon: const Icon(
-                  Icons.send,
-                  color: Colors.black,
-                ),
-                onPressed: () => _sendMessage(context),
-              );
-            }
-          },
-        ),
+    return Material(
+      elevation: basicBorderSize,
+      child: BlocConsumer<PutMessageCubit, PutMessageState>(
+        listener: (context, state) {
+          if (state is PutMessageFirebaseError) {
+            _showFlushBar(context, state.errorMessage);
+          }
+        },
+        builder: (context, state) {
+          if (state is PutMessageSended) {
+            _textController.clear();
+            context.read<PutMessageCubit>().putMessageInitial();
+            context.read<GetMessagesCubit>().getMessages();
+          }
+          return TextField(
+            controller: _textController,
+            style: const TextStyle(color: Colors.black),
+            textAlignVertical: TextAlignVertical.center,
+            cursorColor: Colors.black,
+            decoration: InputDecoration(
+              hintText: messageHint,
+              hintStyle: const TextStyle(color: Colors.black45),
+              contentPadding: const EdgeInsets.only(left: 10),
+              suffixIcon: state is PutMessageSending
+                  ? const Padding(
+                      padding: EdgeInsets.all(basicBorderSize),
+                      child: CircularProgressIndicator(color: Colors.black),
+                    )
+                  : IconButton(
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.black,
+                      ),
+                      onPressed: () => _sendMessage(context),
+                    ),
+            ),
+            onSubmitted: (_) => _sendMessage(context),
+          );
+        },
       ),
-      onSubmitted: (_) => _sendMessage(context),
     );
   }
 
