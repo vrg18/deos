@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:deos/data/chat/cubit/get_messages_cubit.dart';
-import 'package:deos/data/chat/cubit/put_message_cubit.dart';
+import 'package:deos/data/chat/cubit/messages_cubit.dart';
 import 'package:deos/data/chat/repository/firebase.dart';
 import 'package:deos/data/providers/current_user.dart';
 import 'package:deos/data/providers/desktop.dart';
@@ -42,8 +41,7 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<Desktop>(create: (_) => Desktop()),
         ChangeNotifierProvider<CurrentUser>(create: (_) => CurrentUser(prefs)),
-        BlocProvider(create: (_) => GetMessagesCubit(chatRepository)),
-        BlocProvider(create: (_) => PutMessageCubit(chatRepository)),
+        BlocProvider(create: (_) => MessagesCubit(chatRepository)),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

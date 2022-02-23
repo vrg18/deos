@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:deos/data/chat/cubit/get_messages_cubit.dart';
+import 'package:deos/data/chat/cubit/messages_cubit.dart';
 import 'package:deos/data/chat/models/user.dart';
 import 'package:deos/data/providers/current_user.dart';
 import 'package:deos/screens/res/colors.dart';
@@ -71,7 +71,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh),
-          onPressed: () => context.read<GetMessagesCubit>().getMessages(),
+          onPressed: () => context.read<MessagesCubit>().getMessages(),
         ),
       ],
     );
