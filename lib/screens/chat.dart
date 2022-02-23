@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
-import 'package:deos/data/chat/cubit/get_messages_cubit.dart';
-import 'package:deos/data/chat/cubit/put_message_cubit.dart';
+import 'package:deos/data/chat/cubit/messages_cubit.dart';
 import 'package:deos/data/chat/models/message.dart';
 import 'package:deos/data/providers/current_user.dart';
 import 'package:deos/data/providers/desktop.dart';
@@ -22,6 +21,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
+  bool _isPutMessage = false;
 
   @override
   void dispose() {
@@ -38,9 +38,9 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: BlocConsumer<GetMessagesCubit, GetMessagesState>(
+            child: BlocConsumer<MessagesCubit, MessagesState>(
               listener: (context, state) {
-                if (state is GetMessagesFirebaseError) {
+                if (state is MessagesFirebaseError) {
                   _showFlushBar(context, state.errorMessage);
                 }
               },
@@ -48,7 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (state is GetMessagesLoading) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is GetMessagesLoaded) {
-                  return _buildMessagesList(state);
+                  return _buildMessagesList(state.messages);
                 } else {
                   return const SizedBox.expand();
                 }
@@ -61,15 +61,15 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessagesList(GetMessagesLoaded state) {
+  Widget _buildMessagesList(List<ChatMessageDto> messages) {
     return Padding(
       padding: const EdgeInsets.only(top: basicBorderSize, left: basicBorderSize, right: basicBorderSize),
       child: StaggeredGridView.countBuilder(
-        itemCount: state.messages.length,
+        itemCount: messages.length,
         crossAxisCount: 1,
         mainAxisSpacing: basicBorderSize,
-        itemBuilder: (context, index) => MessageCard(state.messages[index]),
-        staggeredTileBuilder: (_) => StaggeredTile.fit(state.messages.length),
+        itemBuilder: (context, index) => MessageCard(messages[index]),
+        staggeredTileBuilder: (_) => StaggeredTile.fit(messages.length),
       ),
     );
   }
@@ -77,17 +77,16 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _sendMessageField() {
     return Material(
       elevation: basicBorderSize,
-      child: BlocConsumer<PutMessageCubit, PutMessageState>(
+      child: BlocConsumer<MessagesCubit, MessagesState>(
         listener: (context, state) {
-          if (state is PutMessageFirebaseError) {
+          if (state is MessagesFirebaseError) {
             _showFlushBar(context, state.errorMessage);
           }
         },
         builder: (context, state) {
-          if (state is PutMessageSended) {
+          if (_isPutMessage && state is GetMessagesLoaded) {
+            _isPutMessage = false;
             _textController.clear();
-            context.read<PutMessageCubit>().putMessageInitial();
-            context.read<GetMessagesCubit>().getMessages();
           }
           return TextField(
             controller: _textController,
@@ -121,7 +120,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage(BuildContext context) {
     if (_textController.text.isNotEmpty) {
       FocusScope.of(context).unfocus();
-      context.read<PutMessageCubit>().sendMessage(
+      _isPutMessage = true;
+      context.read<MessagesCubit>().putMessage(
             ChatMessageDto(
               author: context.read<CurrentUser>().getUser!,
               message: _textController.text,
